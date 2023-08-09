@@ -14,11 +14,15 @@ class Portfolio{
         return new Money(total,currency)
     }
     convert(money, currency){
-        let eurToUsd = 1.2
+        let exchangeRates = new Map();
+        exchangeRates.set("EUR->USD", 1.2)
+        exchangeRates.set("USD->KRW", 1100)
+        
         if(money.currency===currency){
             return money.amount;
         }
-        return money.amount*eurToUsd;
+        let key = money.currency+"->"+currency;
+        return money.amount*exchangeRates.get(key);
     }
 }
 
