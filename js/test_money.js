@@ -6,7 +6,7 @@ const { type } = require('os');
 
 
 class MoneyTest{
-    constructor(){
+    setUp(){
         this.bank = new Bank();
         this.bank.addExchangeRate("EUR","USD",1.2)
         this.bank.addExchangeRate("USD","KRW",1100)
@@ -57,11 +57,14 @@ class MoneyTest{
         assert.throws(()=>portfolio.evaluate(this.bank, "Kalganid"), expectedError)
         // 表示测试代码中的函数应该抛出一个与 expectedError 匹配的错误，否则测试将失败。
     }
-    testConversion(){
-        let bank = new Bank()
-        bank.addExchangeRate("EUR","USD",1.2)
+    testConversionWithDifferentRatesBetweenTwoCurrencies(){
+        // let bank = new Bank()
         let tenEuros = new Money(10,"EUR")
-        assert.deepStrictEqual(bank.convert(tenEuros,"USD"), new Money(12,"USD"));
+        assert.deepStrictEqual(this.bank.convert(tenEuros,"USD"), new Money(12,"USD"));
+
+        this.bank.addExchangeRate("EUR","USD",1.3)
+        assert.deepStrictEqual(this.bank.convert(tenEuros, "USD"), new Money(13,"USD"))
+        
 
     }
     testConversionWithMissingExchange(){
@@ -71,6 +74,7 @@ class MoneyTest{
         assert.throws(function(){bank.convert(tenEuros, "Kalganid")},
             expectedError)
     }
+    
     // 一個接一個測試所有方法
     runAllTests(){
         let testMethods = this.getAllTestMethods();
@@ -80,6 +84,7 @@ class MoneyTest{
             console.log("Running:%s()",m)
             let method = Reflect.get(this,m);//在this物件上取出當前的method給method變數
             try{
+                this.setUp() //讓每次測試前都有一個新的Bank物件
                 Reflect.apply(method,this,[]);//在this物件上呼叫當前的method，[]表示method不需要任何參數
             }catch(e){
                 if(e instanceof assert.AssertionError){
